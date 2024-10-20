@@ -9,6 +9,8 @@ public class OrientationDetector : MonoBehaviour
     public UnityEvent OnPortraitOrientationChanged;
     public UnityEvent OnLandscapeOrientationChanged;
 
+    public bool IsPortrait { get; private set; }
+
     private ScreenOrientation currentOrientation;
 
     private void Awake()
@@ -23,11 +25,15 @@ public class OrientationDetector : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
+        currentOrientation = Screen.orientation; // Store initial orientation
+        if (currentOrientation is ScreenOrientation.Portrait or ScreenOrientation.PortraitUpsideDown)
+        {
+            IsPortrait = true;
+        }
     }
 
     private void Start()
     {
-        currentOrientation = Screen.orientation; // Store initial orientation
         StartCoroutine(OrientationCheckCoroutine());
     }
 
@@ -45,10 +51,12 @@ public class OrientationDetector : MonoBehaviour
                     case ScreenOrientation.Portrait:
                     case ScreenOrientation.PortraitUpsideDown:
                         OnPortraitOrientationChanged.Invoke();
+                        IsPortrait = true;
                         break;
                     case ScreenOrientation.LandscapeLeft:
                     case ScreenOrientation.LandscapeRight:
                         OnLandscapeOrientationChanged.Invoke();
+                        IsPortrait = false;
                         break;
                 }
             }
